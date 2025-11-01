@@ -1,4 +1,4 @@
-"""Command-line interface for LinkSentry."""
+"""Command-line interface for DoubleThink."""
 from __future__ import annotations
 
 import argparse
@@ -46,7 +46,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Expected origin domain for HTML analysis",
     )
     parser.add_argument("--verbose", action="store_true", help="Show extra evidence in table output")
-    parser.add_argument("--version", action="version", version=f"LinkSentry {__version__}")
+    parser.add_argument("--version", action="version", version=f"DoubleThink {__version__}")
     return parser
 
 

@@ -1,4 +1,4 @@
-# linksentry/output_rich.py
+# doublethink/output_rich.py
 from typing import List, Dict, Any, Optional
 from rich.console import Console
 from rich.table import Table

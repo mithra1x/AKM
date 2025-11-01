@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from linksentry.html_analyzer import analyze_html, infer_origin_domain
-from linksentry.rules import default_rulebook
+from doublethink.html_analyzer import analyze_html, infer_origin_domain
+from doublethink.rules import default_rulebook
 
 
 @pytest.fixture(scope="module")

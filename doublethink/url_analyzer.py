@@ -1,4 +1,4 @@
-"""URL analysis heuristics for LinkSentry."""
+"""URL analysis heuristics for DoubleThink."""
 from __future__ import annotations
 
 import base64

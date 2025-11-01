@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from linksentry.rules import default_rulebook
-from linksentry.url_analyzer import analyze_url
+from doublethink.rules import default_rulebook
+from doublethink.url_analyzer import analyze_url
 
 
 @pytest.fixture(scope="module")

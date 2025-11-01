@@ -1,6 +1,6 @@
-# LinkSentry — Explainable URL & Email Analyzer
+# DoubleThink — Explainable URL & Email Analyzer
 
-LinkSentry is a lightweight, offline-friendly toolkit for demonstrating how
+DoubleThink is a lightweight, offline-friendly toolkit for demonstrating how
 phishing detection works. It inspects URLs as well as saved HTML or raw e-mail
 messages, applies a transparent set of heuristic rules, and produces an
 explainable risk score between 0 and 100. The repository ships with a ready to
@@ -28,28 +28,28 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-This installs the `linksentry` CLI entrypoint. To run without installing, you
-can also execute `python -m linksentry` inside the repository.
+This installs the `doublethink` CLI entrypoint. To run without installing, you
+can also execute `python -m doublethink` inside the repository.
 
 ## Usage
 
 ### Analyze a URL
 
 ```bash
-linksentry url https://accounts-g00gle.com/login --output table
+doublethink url https://accounts-g00gle.com/login --output table
 ```
 
 ### Analyze a saved HTML/e-mail file
 
 ```bash
-linksentry file samples/phish_login.html --output json --report report.json
+doublethink file samples/phish_login.html --output json --report report.json
 ```
 
 The HTML analyzer can optionally take an expected origin domain. If one is not
-provided, LinkSentry attempts to infer it from meta tags or HTML comments.
+provided, DoubleThink attempts to infer it from meta tags or HTML comments.
 
 ```bash
-linksentry file phish_login.html --origin example.com
+doublethink file phish_login.html --origin example.com
 ```
 
 ### Verbose explanations
@@ -57,7 +57,7 @@ linksentry file phish_login.html --origin example.com
 Add `--verbose` to surface additional evidence for each triggered rule.
 
 ```bash
-linksentry url https://xn--80ak6aa92e.com --verbose
+doublethink url https://xn--80ak6aa92e.com --verbose
 ```
 
 ## Demo walkthrough
@@ -89,10 +89,10 @@ pytest
 
 Key modules:
 
-- `linksentry/cli.py` – command-line interface and output formatting.
-- `linksentry/url_analyzer.py` – URL-focused heuristics.
-- `linksentry/html_analyzer.py` – HTML/e-mail heuristics.
-- `linksentry/rules.py` – rule loading, scoring, and explainability helpers.
+- `doublethink/cli.py` – command-line interface and output formatting.
+- `doublethink/url_analyzer.py` – URL-focused heuristics.
+- `doublethink/html_analyzer.py` – HTML/e-mail heuristics.
+- `doublethink/rules.py` – rule loading, scoring, and explainability helpers.
 
 ## License
 

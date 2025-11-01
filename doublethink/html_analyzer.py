@@ -1,4 +1,4 @@
-"""HTML and e-mail analysis for LinkSentry."""
+"""HTML and e-mail analysis for DoubleThink."""
 from __future__ import annotations
 
 import re
