@@ -1,4 +1,4 @@
-"""Rule loading and scoring helpers for LinkSentry."""
+"""Rule loading and scoring helpers for DoubleThink."""
 from __future__ import annotations
 
 from dataclasses import dataclass

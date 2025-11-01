@@ -1,4 +1,4 @@
-"""Output helpers for LinkSentry."""
+"""Output helpers for DoubleThink."""
 from __future__ import annotations
 
 import json

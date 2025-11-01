@@ -1,13 +1,13 @@
-# LinkSentry Demo Script
+# DoubleThink Demo Script
 
-Use this guide to run a fast classroom or CTF walk-through of the LinkSentry
+Use this guide to run a fast classroom or CTF walk-through of the DoubleThink
 CLI. Each sample demonstrates a different class of phishing signal and maps to
 the bundled heuristics.
 
 ## 1. Baseline (benign)
 
 ```bash
-linksentry url "$(cat samples/benign_url.txt)"
+doublethink url "$(cat samples/benign_url.txt)"
 ```
 
 *Expected:* score remains below the "low" threshold with no rule hits.
@@ -15,7 +15,7 @@ linksentry url "$(cat samples/benign_url.txt)"
 ## 2. Typosquat phishing URL
 
 ```bash
-linksentry url "$(cat samples/typosquat_url.txt)" --verbose
+doublethink url "$(cat samples/typosquat_url.txt)" --verbose
 ```
 
 *Highlights:*
@@ -27,7 +27,7 @@ linksentry url "$(cat samples/typosquat_url.txt)" --verbose
 ## 3. Homograph via punycode
 
 ```bash
-linksentry url "$(cat samples/homograph_url.txt)"
+doublethink url "$(cat samples/homograph_url.txt)"
 ```
 
 *Highlights:*
@@ -38,7 +38,7 @@ linksentry url "$(cat samples/homograph_url.txt)"
 ## 4. Credential harvesting form
 
 ```bash
-linksentry file samples/phish_login.html --output table --verbose
+doublethink file samples/phish_login.html --output table --verbose
 ```
 
 *Highlights:*

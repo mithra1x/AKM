@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "linksentry"
+name = "doublethink"
 version = "0.1.0"
-description = "LinkSentry - simple URL & HTML analyzer"
+description = "DoubleThink - simple URL & HTML analyzer"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
