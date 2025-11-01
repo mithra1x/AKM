@@ -49,7 +49,7 @@ The HTML analyzer can optionally take an expected origin domain. If one is not
 provided, LinkSentry attempts to infer it from meta tags or HTML comments.
 
 ```bash
-linksentry file message.html --origin example.com
+linksentry file phish_login.html --origin example.com
 ```
 
 ### Verbose explanations
