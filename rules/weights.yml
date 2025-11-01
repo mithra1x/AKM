@@ -1,0 +1,65 @@
+rules:
+  punycode_hostname:
+    title: Punycode hostname
+    description: Hostname is punycode encoded and may hide homograph attacks
+    weight: 70
+  ip_host:
+    title: IP address host
+    description: URL uses a raw IP address instead of a hostname
+    weight: 20
+  at_symbol:
+    title: @ symbol in URL
+    description: @ symbol can hide the real destination
+    weight: 10
+  many_subdomains:
+    title: Excessive subdomains
+    description: Hostname contains an unusually deep subdomain chain
+    weight: 10
+  suspicious_tld:
+    title: High-risk TLD
+    description: Top-level domain is frequently abused in phishing campaigns
+    weight: 15
+  long_path:
+    title: Long path
+    description: URL path length is suspiciously long
+    weight: 10
+  base64_path:
+    title: Encoded payload in path
+    description: URL path resembles base64 encoded data
+    weight: 15
+  typosquat:
+    title: Typosquat candidate
+    description: Hostname closely resembles a known brand domain
+    weight: 25
+  sensitive_path_keyword:
+    title: Sensitive keyword in path
+    description: URL path references login or verification keywords
+    weight: 30
+  phishing_keywords:
+    title: Phishing keywords
+    description: Content includes common phishing trigger words
+    weight: 15
+  hidden_inputs:
+    title: Hidden inputs
+    description: Hidden form inputs detected in HTML content
+    weight: 10
+  suspicious_input_names:
+    title: Suspicious input names
+    description: Form field names suggest credential harvesting
+    weight: 10
+  obfuscated_js:
+    title: Obfuscated JavaScript
+    description: Script contains obfuscation primitives (eval, atob, hex escapes)
+    weight: 15
+  form_action_offsite:
+    title: Off-site form action
+    description: Form submits to a domain different from the expected origin
+    weight: 30
+
+scoring:
+  max_score: 100
+  thresholds:
+    low: 20
+    medium: 40
+    high: 55
+    critical: 70

