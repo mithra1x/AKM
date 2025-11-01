@@ -13,3 +13,8 @@ license = { text = "MIT" }
 [tool.setuptools.packages.find]
 where = ["."]
 exclude = ["samples*", "rules*", "tests*"]
+
+[project.scripts]
+linksentry = "doublethink.cli:main"
+doublethink = "doublethink.cli:main"
+
