@@ -11,6 +11,12 @@ from .reporting import format_table, to_json, write_report
 from .rules import AnalysisResult, RuleBook, default_rulebook, load_rulebook
 from .url_analyzer import analyze_url
 
+# Optional Rich console for pretty table output
+try:
+    from rich.console import Console  # type: ignore
+except Exception:  # pragma: no cover
+    Console = None  # type: ignore
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Explainable URL & HTML analyzer")
@@ -52,11 +58,14 @@ def _load_rulebook(path: Path | None) -> RuleBook:
 
 def _dispatch(args: argparse.Namespace, rulebook: RuleBook) -> AnalysisResult:
     if args.command == "url":
+        # analyze_url ancaq (target, rulebook) qəbul edirsə, bu sətiri olduğu kimi saxlayın.
+        # Əgər verbose dəstəyi əlavə ediləcəksə: analyze_url(args.target, rulebook, verbose=args.verbose)
         return analyze_url(args.target, rulebook)
     if args.command == "file":
         file_path = Path(args.target)
         if not file_path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
+        # analyze_html(verbose=...) dəstəkləyirsə, buraya verbose=args.verbose əlavə edə bilərsiniz.
         return analyze_html(file_path, rulebook, origin_domain=args.origin)
     raise ValueError(f"Unsupported command: {args.command}")
 
@@ -72,15 +81,29 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(str(exc))
         return 2
 
+    # Output
     if args.output == "json":
         output = to_json(result)
+        print(output)
     else:
-        output = format_table(result, verbose=args.verbose)
+        # table output — Rich varsa, rəngli print; yoxdursa, sadə print
+        table_renderable = format_table(result, verbose=args.verbose)
+        if Console is not None:
+            console = Console()
+            console.print(table_renderable)
+        else:
+            # Fallback: format_table string qayıdırsa birbaşa çap ediləcək
+            print(table_renderable)
 
-    print(output)
-
+    # Optional JSON report file
     if args.report:
         write_report(result, str(args.report))
+        # İstifadəçiyə yazılan fayl yolunu da göstərək (Rich varsa vurğulu çıxar)
+        msg = f"Report written: {Path(args.report).resolve()}"
+        if Console is not None and args.output == "table":
+            Console().print(f"[underline]{msg}[/]")
+        else:
+            print(msg)
 
     return 0
 
