@@ -27,6 +27,11 @@ try:
 except Exception:  # pragma: no cover
     Figlet = None  # type: ignore
 
+try:
+    from .tui import run_textual_report  # type: ignore
+except Exception:  # pragma: no cover - textual is optional at runtime
+    run_textual_report = None  # type: ignore
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Explainable URL & HTML analyzer")
@@ -143,6 +148,16 @@ def _interactive_run() -> int:
         return 2
 
     # Output (default: table pretty)
+    if run_textual_report is not None:
+        try:
+            run_textual_report(result)
+            return 0
+        except Exception as exc:  # noqa: BLE001 - fallback to text output
+            if Console is not None:
+                console.print(f"[red]TUI error:[/] {exc}\nFalling back to text output…")
+            else:
+                print(f"TUI error: {exc}\nFalling back to text output…")
+
     renderable = format_table(result, verbose=True)
     if Console is not None:
         try:

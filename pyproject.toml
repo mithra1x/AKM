@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-dependencies = ["rich>=13.0.0", "pyfiglet>=0.8"]
+dependencies = ["rich>=13.0.0", "pyfiglet>=0.8", "textual>=0.38.0"]
 name = "doublethink"
 version = "0.1.0"
 description = "DoubleThink - simple URL & HTML analyzer"
