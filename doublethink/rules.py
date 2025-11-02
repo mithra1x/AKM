@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Sequence, Set
 
 try:  # pragma: no cover - tiny import guard
     import yaml  # type: ignore
@@ -44,13 +44,29 @@ class AnalysisResult:
     metadata: Dict[str, str]
 
 
+@dataclass(frozen=True)
+class ComboDefinition:
+    """Configuration for boosting matches when rules appear together."""
+
+    rule_id: str
+    requires: Sequence[str]
+    message: Optional[str] = None
+
+
 class RuleBook:
     """Holds rule definitions and handles scoring."""
 
-    def __init__(self, rules: Dict[str, RuleDefinition], max_score: int, thresholds: Dict[str, int]):
+    def __init__(
+        self,
+        rules: Dict[str, RuleDefinition],
+        max_score: int,
+        thresholds: Dict[str, int],
+        combos: Sequence[ComboDefinition] | None = None,
+    ):
         self._rules = rules
         self.max_score = max_score
         self.thresholds = thresholds
+        self._combos: Sequence[ComboDefinition] = combos or ()
 
     def make_match(self, rule_id: str, message: str, evidence: Optional[str] = None) -> RuleMatch:
         if rule_id not in self._rules:
@@ -76,6 +92,24 @@ class RuleBook:
             if score >= threshold:
                 severity = name
         return severity
+
+    def apply_combos(self, matches: Sequence[RuleMatch]) -> List[RuleMatch]:
+        """Generate combo matches when prerequisite rules are present."""
+
+        if not self._combos:
+            return []
+
+        triggered_ids: Set[str] = {match.rule_id for match in matches}
+        combo_matches: List[RuleMatch] = []
+        for combo in self._combos:
+            required = set(combo.requires)
+            if not required or not required.issubset(triggered_ids):
+                continue
+            message = combo.message or self._rules[combo.rule_id].description
+            evidence = ", ".join(sorted(required)) if required else None
+            combo_matches.append(self.make_match(combo.rule_id, message, evidence=evidence))
+            triggered_ids.add(combo.rule_id)
+        return combo_matches
 
     def to_dict(self) -> Dict[str, Dict[str, int]]:
         return {
@@ -105,7 +139,21 @@ def load_rulebook(path: Path) -> RuleBook:
         "thresholds",
         {"low": 20, "medium": 40, "high": 60, "critical": 80},
     )
-    return RuleBook(rules, max_score=max_score, thresholds=thresholds)
+    combos_payload = raw.get("combos", {})
+    combos: List[ComboDefinition] = []
+    for rule_id, payload in combos_payload.items():
+        requires = payload.get("requires", [])
+        if isinstance(requires, (str, bytes)) or not isinstance(requires, Iterable):
+            raise ValueError(f"Combo rule '{rule_id}' must define an iterable 'requires'")
+        requires_list = [str(item) for item in requires]
+        combos.append(
+            ComboDefinition(
+                rule_id=rule_id,
+                requires=requires_list,
+                message=payload.get("message"),
+            )
+        )
+    return RuleBook(rules, max_score=max_score, thresholds=thresholds, combos=combos)
 
 
 def default_rulebook() -> RuleBook:
@@ -129,33 +177,52 @@ def _parse_simple_yaml(text: str) -> Dict[str, dict]:
     result: Dict[str, dict] = {}
     current_section: Optional[str] = None
     current_subsection: Optional[str] = None
+    current_list_key: Optional[str] = None
 
     for raw_line in text.splitlines():
         line = raw_line.rstrip()
         if not line or line.lstrip().startswith("#"):
             continue
         indent = len(line) - len(line.lstrip(" "))
+        stripped = line.lstrip(" ")
+        if stripped.startswith("- "):
+            if current_section is None or current_subsection is None or current_list_key is None:
+                raise ValueError("Invalid YAML structure: list item without list context")
+            subsection = result.setdefault(current_section, {}).setdefault(current_subsection, {})
+            item_value = stripped[2:].strip()
+            subsection[current_list_key].append(_coerce_yaml_value(item_value))
+            continue
         key, value = _split_key_value(line)
+        if indent <= 4:
+            current_list_key = None
         if indent == 0:
             current_section = key
             result.setdefault(current_section, {})
             current_subsection = None
+            current_list_key = None
         elif indent == 2 and value == "":
             if current_section is None:
                 raise ValueError("Invalid YAML structure: subsection without section")
             current_subsection = key
             section = result.setdefault(current_section, {})
             section.setdefault(current_subsection, {})
+            current_list_key = None
         elif indent == 2:
             if current_section is None:
                 raise ValueError("Invalid YAML structure: value without section")
             section = result.setdefault(current_section, {})
             section[key] = _coerce_yaml_value(value)
+            current_list_key = None
         elif indent == 4:
             if current_section is None or current_subsection is None:
                 raise ValueError("Invalid YAML structure: nested value without context")
             subsection = result.setdefault(current_section, {}).setdefault(current_subsection, {})
-            subsection[key] = _coerce_yaml_value(value)
+            if value == "":
+                current_list_key = key
+                subsection[key] = []
+            else:
+                subsection[key] = _coerce_yaml_value(value)
+                current_list_key = None
     return result
 
 

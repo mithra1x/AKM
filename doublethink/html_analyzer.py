@@ -41,6 +41,10 @@ def analyze_html(path: Path, rulebook: RuleBook, origin_domain: Optional[str] = 
     for func in _HTML_RULES:
         matches.extend(func(content, rulebook, inferred_origin))
 
+    combo_matches = rulebook.apply_combos(matches)
+    if combo_matches:
+        matches.extend(combo_matches)
+
     target = str(path)
     score = rulebook.score(matches)
     severity = rulebook.classify(score)
