@@ -37,7 +37,7 @@ def render_rules_table(rules: List[Dict[str, Any]], verbose: bool = False) -> No
     table.add_column("weight", justify="right")
     table.add_column("reason")
 
-    # ağırdan yüngülə sırala
+    # Sort from highest to lowest weight.
     for r in sorted(rules, key=lambda x: float(x.get("weight", 0)), reverse=True):
         row_reason = r.get("reason", "")
         if verbose and r.get("evidence"):

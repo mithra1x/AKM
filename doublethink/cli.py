@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 from . import __version__
 from .html_analyzer import analyze_html
@@ -44,10 +45,23 @@ def _load_rulebook(path: Path | None) -> RuleBook:
     return load_rulebook(path) if path else default_rulebook()
 
 
+def _is_http_url(text: str) -> bool:
+    """Return True if the provided text looks like an HTTP(S) URL."""
+    try:
+        parsed = urlparse(text)
+    except ValueError:
+        return False
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+
+
 def _dispatch(args: argparse.Namespace, rulebook: RuleBook) -> AnalysisResult:
     if args.command == "url":
+        if not _is_http_url(args.target):
+            raise ValueError("Target must be an HTTP/HTTPS URL when using the 'url' command.")
         return analyze_url(args.target, rulebook)
     if args.command == "file":
+        if _is_http_url(args.target):
+            raise ValueError("Target appears to be a URL; use the 'url' command instead.")
         file_path = Path(args.target)
         if not file_path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
@@ -65,7 +79,7 @@ def _print_banner() -> None:
     console = Console()
     art = None
     if Figlet is not None:
-        # fərqli font sına: "slant", "ansi_shadow", "block", "standard"
+        # Try different fonts in order of preference.
         for f in ("slant", "ansi_shadow", "block", "standard"):
             try:
                 art = Figlet(font=f).renderText("DOUBLETHINK")
@@ -113,8 +127,12 @@ def _interactive_run() -> int:
     try:
         rulebook = _load_rulebook(None)
         if command == "url":
+            if not _is_http_url(target):
+                raise ValueError("Type mismatch: provide an HTTP/HTTPS address for URL mode.")
             result = analyze_url(target, rulebook)
         else:
+            if _is_http_url(target):
+                raise ValueError("Type mismatch: provide a local file path for file mode.")
             fp = Path(target)
             if not fp.exists():
                 (console.print(f"[red]File not found:[/] {fp}") if Console is not None else print(f"File not found: {fp}"))
