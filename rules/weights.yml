@@ -35,6 +35,10 @@ rules:
     title: Sensitive keyword in path
     description: URL path references login or verification keywords
     weight: 30
+  combo_typosquat_credentials:
+    title: Coordinated typosquat lure
+    description: Typosquat hostname combined with credential harvesting lure
+    weight: 20
   phishing_keywords:
     title: Hidden inputs
     description: Hidden form inputs detected in HTML content
@@ -55,6 +59,12 @@ rules:
     title: Hidden inputs
     description: Hidden form inputs detected in HTML content
     weight: 10
+combos:
+  combo_typosquat_credentials:
+    requires:
+      - typosquat
+      - sensitive_path_keyword
+    message: Typosquat indicators paired with credential harvesting lure
 scoring:
   max_score: 100
   thresholds:

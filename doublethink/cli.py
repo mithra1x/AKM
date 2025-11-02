@@ -116,32 +116,58 @@ def _interactive_run() -> int:
         console = Console()
         console.print("\nPlease Choose:")
         console.print("[1] URL\n[2] FILE")
-        choice = console.input("\n[bold]Enter here:[/] ").strip() or "1"
     else:
+        console = None
         print("\nPlease Choose:\n[1] URL\n[2] FILE")
-        choice = input("\nEnter here: ").strip() or "1"
+
+    choice = ""
+    while choice not in {"1", "2"}:
+        if console is not None:
+            choice = console.input("\n[bold]Enter here:[/] ").strip() or "1"
+            if choice not in {"1", "2"}:
+                console.print("[red]Invalid selection.[/] Please enter 1 or 2.")
+        else:
+            choice = input("\nEnter here: ").strip() or "1"
+            if choice not in {"1", "2"}:
+                print("Invalid selection. Please enter 1 or 2.")
 
     if choice == "2":
         command = "file"; prompt = "Enter file path: "
     else:
         command = "url";  prompt = "Enter URL: "
 
-    target = (console.input(prompt) if Console is not None else input(prompt)).strip()
+    while True:
+        target = (console.input(prompt) if console is not None else input(prompt)).strip()
+        if command == "url":
+            if not _is_http_url(target):
+                if console is not None:
+                    console.print("[red]Invalid URL.[/] Please provide an HTTP/HTTPS address.")
+                else:
+                    print("Invalid URL. Please provide an HTTP/HTTPS address.")
+                continue
+            break
+        if _is_http_url(target):
+            if console is not None:
+                console.print("[red]Invalid path.[/] Provide a local file path for file mode.")
+            else:
+                print("Invalid path. Provide a local file path for file mode.")
+            continue
+        fp = Path(target)
+        if not fp.exists():
+            if console is not None:
+                console.print(f"[red]File not found:[/] {fp}")
+            else:
+                print(f"File not found: {fp}")
+            continue
+        break
 
     # Analyze
     try:
         rulebook = _load_rulebook(None)
         if command == "url":
-            if not _is_http_url(target):
-                raise ValueError("Type mismatch: provide an HTTP/HTTPS address for URL mode.")
             result = analyze_url(target, rulebook)
         else:
-            if _is_http_url(target):
-                raise ValueError("Type mismatch: provide a local file path for file mode.")
             fp = Path(target)
-            if not fp.exists():
-                (console.print(f"[red]File not found:[/] {fp}") if Console is not None else print(f"File not found: {fp}"))
-                return 2
             result = analyze_html(fp, rulebook, origin_domain=None)
     except Exception as exc:  # noqa: BLE001
         (console.print(f"[red]Error:[/] {exc}") if Console is not None else print(f"Error: {exc}"))

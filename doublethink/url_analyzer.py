@@ -57,6 +57,10 @@ def analyze_url(url: str, rulebook: RuleBook) -> AnalysisResult:
     for func in _URL_RULES:
         matches.extend(func(context, rulebook))
 
+    combo_matches = rulebook.apply_combos(matches)
+    if combo_matches:
+        matches.extend(combo_matches)
+
     score = rulebook.score(matches)
     severity = rulebook.classify(score)
     metadata = {

@@ -23,7 +23,8 @@ def test_typosquat_detection(rulebook):
     rule_ids = {match.rule_id for match in result.matches}
     assert "typosquat" in rule_ids
     assert "sensitive_path_keyword" in rule_ids
-    assert result.score >= 55
+    assert "combo_typosquat_credentials" in rule_ids
+    assert result.score >= 75
 
 
 def test_ip_host(rulebook):
