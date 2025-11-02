@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Literal
 from urllib.parse import parse_qsl, urlparse
 
 try:
@@ -222,13 +222,16 @@ def _dispatch(args: argparse.Namespace, rulebook: RuleBook) -> AnalysisResult:
     raise ValueError(f"Unsupported command: {args.command}")
 
 
+OutputFormat = Literal["table", "json"]
+
+
 if typer:
 
     @app.command(help="Analyze an HTTP or HTTPS URL.")
     def url(  # type: ignore[misc]
         target: str = typer.Argument(..., help="URL to analyze."),
         rules: Path | None = typer.Option(None, "--rules", help="Optional path to a rules file."),
-        output: str = typer.Option(
+        output: OutputFormat = typer.Option(
             "table",
             "--output",
             "-o",
@@ -236,7 +239,7 @@ if typer:
             show_default=True,
             metavar="[table|json]",
             rich_help_panel="Output",
-            type=typer.Choice(["table", "json"], case_sensitive=False),
+            case_sensitive=False,
         ),
         report: Path | None = typer.Option(None, "--report", help="Write JSON report to this path."),
         verbose: bool = typer.Option(False, "--verbose", "-v", help="Show evidence in the rules table."),
@@ -252,7 +255,7 @@ if typer:
         target: Path = typer.Argument(..., exists=True, readable=True, help="Path to the HTML file."),
         origin: str | None = typer.Option(None, "--origin", help="Expected origin domain for off-site checks."),
         rules: Path | None = typer.Option(None, "--rules", help="Optional path to a rules file."),
-        output: str = typer.Option(
+        output: OutputFormat = typer.Option(
             "table",
             "--output",
             "-o",
@@ -260,7 +263,7 @@ if typer:
             show_default=True,
             metavar="[table|json]",
             rich_help_panel="Output",
-            type=typer.Choice(["table", "json"], case_sensitive=False),
+            case_sensitive=False,
         ),
         report: Path | None = typer.Option(None, "--report", help="Write JSON report to this path."),
         verbose: bool = typer.Option(False, "--verbose", "-v", help="Show evidence in the rules table."),
