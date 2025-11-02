@@ -13,7 +13,7 @@ from .rules import AnalysisResult, RuleMatch
 try:  # pragma: no cover - import guard for optional UI dependency
     from textual.app import App, ComposeResult
     from textual.containers import Container, Horizontal, VerticalScroll
-    from textual.widgets import DataTable, Footer, Header, Input, Static, TabbedContent, TabPane
+    from textual.widgets import DataTable, Footer, Header, Input, Static, Tab, Tabs
 except Exception as exc:  # pragma: no cover - propagate for caller to handle
     raise RuntimeError("Textual dependency is required to render the interactive TUI") from exc
 
@@ -45,16 +45,16 @@ class DoubleThinkReportApp(App[None]):
         layout: vertical;
     }
 
-    #tabs {
-        height: 1fr;
-    }
-
     #overview-panel, #meta-panel, #rules-layout {
         padding: 1;
     }
 
     #rules-layout {
         layout: vertical;
+    }
+
+    #content-container {
+        height: 1fr;
     }
 
     #rules-panels {
@@ -103,15 +103,22 @@ class DoubleThinkReportApp(App[None]):
         )
 
         yield Header(show_clock=False)
-        yield TabbedContent(
-            TabPane("Overview", overview),
-            TabPane("Rules", rules_tab, id="rules-tab"),
-            TabPane("Metadata", meta),
+        yield Tabs(
+            Tab("Overview", id="tab-overview"),
+            Tab("Rules", id="tab-rules"),
+            Tab("Metadata", id="tab-metadata"),
             id="tabs",
+        )
+        yield Container(
+            overview,
+            rules_tab,
+            meta,
+            id="content-container",
         )
         yield Footer()
 
     def on_mount(self) -> None:
+        self._switch_panel("tab-overview")
         table = self.query_one("#rules-table", DataTable)
         table.cursor_type = "row"
         table.zebra_stripes = True
@@ -182,6 +189,9 @@ class DoubleThinkReportApp(App[None]):
     def action_focus_search(self) -> None:
         self.query_one("#search", Input).focus()
 
+    def on_tabs_tab_activated(self, event: Tabs.TabActivated) -> None:
+        self._switch_panel(event.tab.id or "")
+
     def on_input_changed(self, event: Input.Changed) -> None:
         if event.input.id != "search":
             return
@@ -199,9 +209,21 @@ class DoubleThinkReportApp(App[None]):
             ]
         self._populate_table(filtered)
         if filtered:
+            self._select_row(filtered[0].key)
             self._update_detail(filtered[0].match)
         else:
             self._clear_detail("No matches for current filter.")
+
+    def _switch_panel(self, tab_id: str) -> None:
+        mapping = {
+            "tab-overview": "overview-panel",
+            "tab-rules": "rules-layout",
+            "tab-metadata": "meta-panel",
+        }
+        target_id = mapping.get(tab_id)
+        container = self.query_one("#content-container", Container)
+        for widget in container.children:
+            widget.display = widget.id == target_id
 
     def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:  # noqa: D401 - textual hook
         key = event.row_key.value if event.row_key else None
