@@ -39,6 +39,13 @@ can also execute `python -m doublethink` inside the repository.
 doublethink url https://accounts-g00gle.com/login --output table
 ```
 
+The Rich-powered console output includes:
+
+- A colorised risk meter summarising the total score.
+- A parsed URL tree that highlights scheme, host, path, and query parameters.
+- A severity-coloured table with rule weights, descriptions, and evidence.
+- An ASCII bar chart that visualises each rule's contribution to the total score.
+
 ### Analyze a saved HTML/e-mail file
 
 ```bash
@@ -59,6 +66,8 @@ Add `--verbose` to surface additional evidence for each triggered rule.
 ```bash
 doublethink url https://xn--80ak6aa92e.com --verbose
 ```
+
+Verbose mode expands the evidence column in the rules table for deeper demos.
 
 ## Demo walkthrough
 
