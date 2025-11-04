@@ -2,7 +2,7 @@
 
 Use this guide to run a fast classroom or CTF walk-through of the DoubleThink
 CLI. Each sample demonstrates a different class of phishing signal and maps to
-the bundled heuristics.
+the bundled heuristics. 
 
 ## 1. Baseline (benign)
 
