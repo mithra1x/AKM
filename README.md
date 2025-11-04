@@ -33,6 +33,11 @@ can also execute `python -m doublethink` inside the repository.
 
 ## Usage
 
+### Command
+
+```bash
+doublethink 
+```
 ### Analyze a URL
 
 ```bash
